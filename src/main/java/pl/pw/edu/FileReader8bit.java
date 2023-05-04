@@ -3,25 +3,36 @@ package pl.pw.edu;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.io.*;
+import java.util.Map;
 
-public class ReadFile {
+public class FileReader8bit implements FileReader {
     private final String fileName;
 
     private int decimalCount=0;
 
-    private static final int bitCounter = 256*8;
-    public ReadFile(String fileName) {
+    private String encoded;
+    private Map<Character, String> dictionary;
+
+    public String getEncoded() {
+        return encoded;
+    }
+
+    public Map<Character, String> getDictionary() {
+        return dictionary;
+    }
+
+    private static final int BIT_COUNTER = 256*8;
+    public FileReader8bit(String fileName) {
         this.fileName = fileName;
     }
 
+    @Override
     public void read() {
         try {
             StringBuilder binaryString = readBinaryStringFromFile();
             String trimmedText = trimTrailingZeros(binaryString);
-            HashMap<Character, String> dictionary = addToDictionary(trimmedText);
-            System.out.println(dictionary);
-            String encoded = encodedText (trimmedText);
-            System.out.println(encoded);
+            this.dictionary = addToDictionary(trimmedText);
+            this.encoded = encodedText (trimmedText);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -55,7 +66,7 @@ public class ReadFile {
         HashMap<Character, String> dictionary = new HashMap<>();
         char keyChar;
         for (int i = 0; i < 255; i++) {
-            String value=null;
+            String value;
             keyChar=(char)i;
             String eightChars = trimmedText.substring(startIndex, startIndex + 8);
             int decimal = Integer.parseInt(eightChars, 2);
@@ -70,7 +81,6 @@ public class ReadFile {
     }
 
     private String encodedText (String trimmedText){
-        String text = trimmedText.substring(decimalCount+bitCounter);
-        return text;
+        return trimmedText.substring(decimalCount+ BIT_COUNTER);
     }
 }
